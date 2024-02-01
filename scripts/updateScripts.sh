@@ -7,23 +7,23 @@ if [ "$#" -ne 3 ]; then
 fi
 
 # Source URL for shell scripts
-SOURCE_URL="$1"
+sourceUrl="$1"
 
 # Destination folder on the Elemental device
-DESTINATION_FOLDER="$2"
+destinationFolder="$2"
 
 # Create destination folder if it doesn't exist
-mkdir -p "$DESTINATION_FOLDER"
+mkdir -p "$destinationFolder"
 
 # Script names provided as space-separated list
-SCRIPT_NAMES="$3"
+scriptNames="$3"
 
 # Convert space-separated script names to an array
-IFS=' ' read -ra SCRIPT_ARRAY <<< "$SCRIPT_NAMES"
+IFS=' ' read -ra SCRIPT_ARRAY <<< "$scriptNames"
 
 # Loop through the list of script names
-for SCRIPT_NAME in "${SCRIPT_ARRAY[@]}"; do
+for scriptName in "${SCRIPT_ARRAY[@]}"; do
     # Download the script using curl
-    curl -o "$DESTINATION_FOLDER/$SCRIPT_NAME" "$SOURCE_URL/$SCRIPT_NAME"
+    curl -o "$destinationFolder/$scriptName" "$sourceUrl/$scriptName"
 
 done
