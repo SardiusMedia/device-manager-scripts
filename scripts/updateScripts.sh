@@ -24,6 +24,6 @@ IFS=' ' read -ra SCRIPT_ARRAY <<< "$SCRIPT_NAMES"
 # Loop through the list of script names
 for SCRIPT_NAME in "${SCRIPT_ARRAY[@]}"; do
     # Download the script using curl
-    curl -O "$DESTINATION_FOLDER/$SCRIPT_NAME" "$SOURCE_URL/$SCRIPT_NAME"
+    curl -o "$DESTINATION_FOLDER/$SCRIPT_NAME" "$SOURCE_URL/$SCRIPT_NAME"
 
 done
