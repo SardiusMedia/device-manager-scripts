@@ -26,4 +26,7 @@ for scriptName in "${SCRIPT_ARRAY[@]}"; do
     # Download the script using curl
     curl -o "$destinationFolder/$scriptName" "$sourceUrl/$scriptName"
 
+    # Give execute permission to the downloaded script
+    chmod +x "$destinationFolder/$scriptName"
+
 done
