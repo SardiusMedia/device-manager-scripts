@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run status.sh script and capture its output
-network_output=$(/home/elemental/sardius/elScripts/networkSettings.sh)
+network_output=$(/home/elemental/sardius/elScripts/network.sh)
 
 # Run systemInfo.sh script and capture its output
 system_info_output=$(/home/elemental/sardius/elScripts/systemInfo.sh)
