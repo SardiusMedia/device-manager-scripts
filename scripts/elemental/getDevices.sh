@@ -1,5 +1,3 @@
-http://192.168.11.179/devices.json
-
 #!/bin/bash
 
 # Run get input devices on Elemental REST API
