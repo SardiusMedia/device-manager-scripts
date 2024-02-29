@@ -7,7 +7,7 @@ presigned_url="$1"
 output=$(curl -X GET http://localhost/api/live_events.json)
 
 # Upload the output to S3 using the presigned URL
-curl -X PUT -T <(echo "$output") "$presigned_url"
+curl -X PUT -T <(echo "$output") -H "Transfer-Encoding:" "$presigned_url"
 
 # Extract the object key from the presigned URL
 object_key=$(echo "$presigned_url" | awk -F "/" '{print $(NF-1)}')
