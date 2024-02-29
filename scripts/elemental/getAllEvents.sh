@@ -6,8 +6,11 @@ presigned_url="$1"
 # Run get input devices on Elemental REST API and capture the output
 output=$(curl -X GET http://localhost/api/live_events.json)
 
+# Calculate the length of the output data
+content_length=$(echo -n "$output" | wc -c)
+
 # Upload the output to S3 using the presigned URL
-curl -X PUT -T <(echo "$output") -H "Transfer-Encoding:" "$presigned_url"
+curl -X PUT -T <(echo "$output") -H "Content-Length: $content_length" -H "Transfer-Encoding:" "$presigned_url"
 
 # Extract the object key from the presigned URL
 object_key=$(echo "$presigned_url" | awk -F "/" '{print $(NF-1)}')
