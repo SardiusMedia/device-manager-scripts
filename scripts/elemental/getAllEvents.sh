@@ -4,7 +4,7 @@
 presigned_url="$1"
 
 # Run get input devices on Elemental REST API and capture the output
-output=$(curl -X GET http://localhost/api/live_events.json)
+output=$(curl -X GET http://localhost/api/live_events.xml)
 
 # Calculate the length of the output data
 content_length=$(echo -n "$output" | wc -c)
