@@ -15,7 +15,7 @@ if ! command -v jq &> /dev/null; then
     echo "jq is not installed. Installing..."
     
     # Install jq using yum
-    sudo yum install -y jq || {
+    yes | sudo yum install -y jq || {
         echo "Unable to install jq. Please install it manually."
         exit 1
     }
