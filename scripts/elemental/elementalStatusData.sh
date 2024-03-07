@@ -14,19 +14,13 @@ xml_to_json_jq() {
 if ! command -v jq &> /dev/null; then
     echo "jq is not installed. Installing..."
     
-    # Install jq using package manager (if available)
-    if [ -x "$(command -v apt-get)" ]; then
-        sudo apt-get update
-        sudo apt-get install -y jq
-    elif [ -x "$(command -v yum)" ]; then
-        sudo yum install -y jq
-    elif [ -x "$(command -v brew)" ]; then
-        brew install jq
-    else
+    # Install jq using yum
+    sudo yum install -y jq || {
         echo "Unable to install jq. Please install it manually."
         exit 1
-    fi
+    }
 fi
+
 
 # Function to convert XML content to JSON
 convert_xml_to_json() {
