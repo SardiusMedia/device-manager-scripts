@@ -3,13 +3,6 @@
 # Presigned URL provided as the first command-line argument
 presigned_url="$1"
 
-escape_double_quotes() {
-    local str="$1"
-    # Use sed to replace double quotes with escaped double quotes
-    local escaped_str=$(echo "$str" | sed 's/"/\\"/g')
-    echo "$escaped_str"
-}
-
 # Function to extract event IDs from XML
 extract_event_ids() {
     local xml="$1"
@@ -64,8 +57,10 @@ for ((i=0; i<${#event_statuses[@]}; i++)); do
     fi
 done
 
-# Escape double quotes in the XML content
-escaped_all_events_xml=$(escape_double_quotes "$all_events_xml")
+# Escape double quotes, backslashes, and newline characters in the XML content
+escaped_all_events_xml="${all_events_xml//\\/\\\\}"
+escaped_all_events_xml="${escaped_all_events_xml//\"/\\\"}"
+escaped_all_events_xml="${escaped_all_events_xml//$'\n'/\\n}"
 
 # Merge JSON responses into one object
 merged_json="{\"system_status\":$system_status_output, \"devices\":$devices_output, \"event_statuses\":[$event_statuses_json], \"all_events_xml\":\"$escaped_all_events_xml\" }"
