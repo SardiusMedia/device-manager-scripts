@@ -1,14 +1,17 @@
 #!/bin/bash
 
+# Presigned URL provided as the first command-line argument
+presigned_url="$1"
+
+# Directory to download yq binary
+yq_directory="/home/elemental/sardius/yq"
+
 # Function to convert XML to JSON using yq
 xml_to_json_yq() {
     local xml="$1"
     local json=$(yq e -o=json "$xml")
     echo "$json"
 }
-
-# Directory to download yq binary
-yq_directory="/home/elemental/sardius/yq"
 
 # Check if yq is available, if not, install it
 if ! command -v yq &> /dev/null; then
@@ -70,10 +73,10 @@ done
 # Merge JSON responses into one object
 merged_json="{\"system_status\":$system_status_output, \"devices\":$devices_output, \"all_events\":$all_events_json, \"event_statuses\":${event_statuses[*]}}"
 
-# Calculate the length of the output data
-content_length=$(echo -n "$output" | wc -c)
+# Calculate the length of the merged_json data
+content_length=$(echo -n "$merged_json" | wc -c)
 
-# Upload the output to S3 using the presigned URL
+# Upload the merged_json to S3 using the presigned URL
 curl -X PUT -T <(echo "$merged_json") -H "Content-Length: $content_length" -H "Transfer-Encoding:" "$presigned_url"
 
 # Extract the object key from the presigned URL
