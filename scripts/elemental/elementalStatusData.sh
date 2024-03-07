@@ -3,10 +3,10 @@
 # Presigned URL provided as the first command-line argument
 presigned_url="$1"
 
-# Function to extract event IDs from JSON
+# Function to extract event IDs from XML
 extract_event_ids() {
-    local json="$1"
-    local ids=$(echo "$json" | jq -r '.[].href' | grep -oE '[0-9]+')
+    local xml="$1"
+    local ids=$(echo "$xml" | grep -oP '(?<=href="/live_events/)[0-9]+')
     echo "$ids"
 }
 
@@ -45,7 +45,7 @@ for event_id in $event_ids; do
 done
 
 # Merge JSON responses into one object
-merged_json="{\"system_status\":$system_status_output, \"devices\":$devices_output, \"all_events_xml\":\"$all_events_xml\", \"event_statuses\":${event_statuses[*]}}"
+merged_json="{\"system_status\":$system_status_output, \"devices\":$devices_output, \"event_statuses\":${event_statuses[*]}, \"all_events_xml\":\"$all_events_xml\"}"
 
 # Calculate the length of the merged_json data
 content_length="${#merged_json}"
