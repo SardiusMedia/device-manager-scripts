@@ -3,13 +3,16 @@
 # Presigned URL provided as the first command-line argument
 presigned_url="$1"
 
+# Full path to yq binary
+yq_binary="/home/elemental/sardius/yq/yq"
+
 # Directory to download yq binary
 yq_directory="/home/elemental/sardius/yq"
 
 # Function to convert XML to JSON using yq
 xml_to_json_yq() {
     local xml="$1"
-    local json=$(yq e -o=json "$xml")
+    local json=$("$yq_binary" e -o=json "$xml")
     echo "$json"
 }
 
