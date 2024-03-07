@@ -3,42 +3,42 @@
 # Presigned URL provided as the first command-line argument
 presigned_url="$1"
 
-# Full path to yq binary
-yq_binary="/home/elemental/sardius/yq/yq"
-
-# Directory to download yq binary
-yq_directory="/home/elemental/sardius/yq"
-
-# Function to convert XML to JSON using yq
-xml_to_json_yq() {
+# Function to convert XML to JSON using jq
+xml_to_json_jq() {
     local xml="$1"
-    local json=$("$yq_binary" e -o=json "$xml")
+    local json=$(jq -n --arg xml "$xml" '$xml | fromxml')
     echo "$json"
 }
 
-# Check if yq is available, if not, install it
-if ! command -v yq &> /dev/null; then
-    echo "yq is not installed. Installing..."
-
-    # Download yq binary to the specified directory
-    mkdir -p "$yq_directory"
-    curl -sL https://github.com/mikefarah/yq/releases/download/v4.13.2/yq_linux_amd64 -o "$yq_directory/yq"
-
-    # Make yq executable
-    chmod +x "$yq_directory/yq"
+# Check if jq is available, if not, install it
+if ! command -v jq &> /dev/null; then
+    echo "jq is not installed. Installing..."
+    
+    # Install jq using package manager (if available)
+    if [ -x "$(command -v apt-get)" ]; then
+        sudo apt-get update
+        sudo apt-get install -y jq
+    elif [ -x "$(command -v yum)" ]; then
+        sudo yum install -y jq
+    elif [ -x "$(command -v brew)" ]; then
+        brew install jq
+    else
+        echo "Unable to install jq. Please install it manually."
+        exit 1
+    fi
 fi
 
 # Function to convert XML content to JSON
 convert_xml_to_json() {
     local xml_content="$1"
-    local json_content=$(xml_to_json_yq "$xml_content")
+    local json_content=$(xml_to_json_jq "$xml_content")
     echo "$json_content"
 }
 
 # Function to extract event IDs from JSON
 extract_event_ids() {
     local json="$1"
-    local ids=$(echo "$json" | yq e '.[].href' - | grep -oE '[0-9]+')
+    local ids=$(echo "$json" | jq -r '.[].href' | grep -oE '[0-9]+')
     echo "$ids"
 }
 
