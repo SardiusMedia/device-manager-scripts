@@ -33,19 +33,25 @@ all_events_xml=$(curl -sX GET http://localhost/api/live_events.xml)
 echo "Extracting event IDs..."
 event_ids=$(extract_event_ids "$all_events_xml")
 
-# Array to store event statuses
-event_statuses=()
+# Initialize an empty string to store event statuses
+event_statuses=""
 
 # Loop through each event ID and fetch its status
 echo "Fetching event statuses..."
 for event_id in $event_ids; do
     echo "Fetching status for event ID: $event_id"
     event_status=$(fetch_event_status "$event_id")
-    event_statuses+=("$event_status")
+    # Append the fetched status to the event_statuses string
+    event_statuses+="$(echo "$event_status"),"
 done
 
+# Remove the trailing comma if the event_statuses string is not empty
+if [ -n "$event_statuses" ]; then
+    event_statuses=${event_statuses%,}  # Remove the trailing comma
+fi
+
 # Merge JSON responses into one object
-merged_json="{\"system_status\":$system_status_output, \"devices\":$devices_output, \"event_statuses\":${event_statuses[*]}, \"all_events_xml\":\"$all_events_xml\"}"
+merged_json="{\"system_status\":$system_status_output, \"devices\":$devices_output, \"event_statuses\":[$event_statuses], \"all_events_xml\":\"$all_events_xml\"}"
 
 # Calculate the length of the merged_json data
 content_length="${#merged_json}"
