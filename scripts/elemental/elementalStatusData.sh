@@ -3,11 +3,11 @@
 # Presigned URL provided as the first command-line argument
 presigned_url="$1"
 
-# Function to encode XML content using base64
-encode_xml_base64() {
-    local xml="$1"
-    local encoded_xml=$(echo -n "$xml" | base64)
-    echo "$encoded_xml"
+escape_double_quotes() {
+    local str="$1"
+    # Use sed to replace double quotes with escaped double quotes
+    local escaped_str=$(echo "$str" | sed 's/"/\\"/g')
+    echo "$escaped_str"
 }
 
 # Function to extract event IDs from XML
@@ -64,11 +64,11 @@ for ((i=0; i<${#event_statuses[@]}; i++)); do
     fi
 done
 
-# Encode the XML content
-encoded_events_xml=$(encode_xml_base64 "$all_events_xml")
+# Escape double quotes in the XML content
+escaped_all_events_xml=$(escape_double_quotes "$all_events_xml")
 
 # Merge JSON responses into one object
-merged_json="{\"system_status\":$system_status_output, \"devices\":$devices_output, \"event_statuses\":[$event_statuses_json], \"all_events_xml\":\"$encoded_events_xml\" }"
+merged_json="{\"system_status\":$system_status_output, \"devices\":$devices_output, \"event_statuses\":[$event_statuses_json], \"all_events_xml\":\"$escaped_all_events_xml\" }"
 
 # Calculate the length of the merged_json data
 content_length="${#merged_json}"
