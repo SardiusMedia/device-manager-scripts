@@ -1,14 +1,5 @@
 #!/bin/bash
 
-# Run updateScripts.sh script and capture its output
-update_scripts_output=$(/home/elemental/sardius/elScripts/updateScripts.sh)
-
-# Check if updateScripts.sh was successful
-if [ $? -ne 0 ]; then
-  echo "updateScripts.sh failed. Exiting."
-  exit 1
-fi
-
 # Run systemInfo.sh, getDevices.sh, network.sh, and firmware.sh scripts concurrently
 system_info_output=$(/home/elemental/sardius/elScripts/systemInfo.sh &)
 devices_output=$(/home/elemental/sardius/elScripts/getDevices.sh &)
