@@ -11,9 +11,9 @@ sudo curl -o /home/elemental/sardius/elScripts/updateScripts.sh https://raw.gith
 # Make the script executable
 sudo chmod +x /home/elemental/sardius/elScripts/updateScripts.sh
 
-# Install the package
+# Install the package, ignoring errors if already installed, automatically answering yes to prompts
 echo "yes" | sudo yum install -y /home/elemental/sardius/ssm/amazon-ssm-agent.rpm
+
 
 # Stop the service
 sudo systemctl stop amazon-ssm-agent
-
