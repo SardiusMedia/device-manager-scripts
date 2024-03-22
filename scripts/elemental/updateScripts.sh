@@ -21,12 +21,24 @@ scriptNames="$3"
 # Convert space-separated script names to an array
 IFS=' ' read -ra SCRIPT_ARRAY <<< "$scriptNames"
 
+# Array to store background process IDs
+declare -a PID_ARRAY
+
 # Loop through the list of script names
 for scriptName in "${SCRIPT_ARRAY[@]}"; do
-    # Download the script using curl
-    curl -o "$destinationFolder/$scriptName" "$sourceUrl/$scriptName"
+    # Download the script using curl in the background
+    curl -o "$destinationFolder/$scriptName" "$sourceUrl/$scriptName" &
 
-    # Give execute permission to the downloaded script
-    chmod +x "$destinationFolder/$scriptName"
-
+    # Store the background process ID
+    PID_ARRAY+=($!)
 done
+
+# Wait for all background processes to finish
+for pid in "${PID_ARRAY[@]}"; do
+    wait "$pid"
+done
+
+# Give execute permission to the downloaded scripts
+chmod +x "$destinationFolder"/*
+
+echo "All scripts have been updated."
