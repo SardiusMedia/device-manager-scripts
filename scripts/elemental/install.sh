@@ -11,16 +11,16 @@ sudo curl -o /home/elemental/sardius/elScripts/updateScripts.sh https://raw.gith
 # Make the script executable
 sudo chmod +x /home/elemental/sardius/elScripts/updateScripts.sh
 
-echo "Attempting to install Amazon SSM Agent..."
-
-# Install the package, automatically answering yes to prompts
-echo "yes" | sudo yum install -y /home/elemental/sardius/ssm/amazon-ssm-agent.rpm | true
-
-# Check if the installation was successful
-if [ $? -eq 0 ]; then
-    echo "Amazon SSM Agent installed successfully."
+# Check if the Amazon SSM Agent is already installed
+if rpm -q amazon-ssm-agent &>/dev/null; then
+    echo "Amazon SSM Agent is already installed."
 else
-    echo "Amazon SSM Agent is already installed. Nothing to do."
+    echo "Attempting to install Amazon SSM Agent..."
+
+    # Attempt to install Amazon SSM Agent
+    echo "yes" | sudo yum install -y /home/elemental/sardius/ssm/amazon-ssm-agent.rpm
+
+    echo "Amazon SSM Agent installed successfully."
 fi
 
 # Stop the service
