@@ -18,8 +18,9 @@ output="{\"SystemInfo\": $system_info_output, \"Devices\": $devices_output, \"Ne
 # Calculate content length
 content_length=${#output}
 
-# Upload the output to S3 using the presigned URL
-curl_output=$(curl -s -X PUT -T <(echo "$output") -H "Content-Length: $content_length" -H "Transfer-Encoding:" "$presigned_url" 2>&1)
-
-# Output curl result to StandardOutputContent
-echo "$curl_output"
+# Upload the output to S3 using the presigned URL, mask the output
+if curl_output=$(curl -s -X PUT -T <(echo "$output") -H "Content-Length: $content_length" -H "Transfer-Encoding:" "$presigned_url"); then
+    echo "success"
+else
+    echo "failed"
+fi
