@@ -19,4 +19,7 @@ output="{\"SystemInfo\": $system_info_output, \"Devices\": $devices_output, \"Ne
 content_length=${#output}
 
 # Upload the output to S3 using the presigned URL
-curl -X PUT -T <(echo "$output") -H "Content-Length: $content_length" -H "Transfer-Encoding:" "$presigned_url"
+curl_output=$(curl -s -X PUT -T <(echo "$output") -H "Content-Length: $content_length" -H "Transfer-Encoding:" "$presigned_url" 2>&1)
+
+# Output curl result to StandardOutputContent
+echo "$curl_output"
