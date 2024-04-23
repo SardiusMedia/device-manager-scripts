@@ -4,9 +4,9 @@
 presigned_url="$1"
 
 # Run systemInfo.sh, getDevices.sh, network.sh, and firmware.sh scripts concurrently
-system_info_output=$(/home/elemental/sardius/elScripts/systemInfo.sh &)
-devices_output=$(/home/elemental/sardius/elScripts/getDevices.sh &)
-network_output=$(/home/elemental/sardius/elScripts/network.sh &)
+system_info_output=$(/home/elemental/sardius/elScripts/systemInfo.sh "$2" "$3" "$4" &)
+devices_output=$(/home/elemental/sardius/elScripts/getDevices.sh "$2" "$3" "$4" &)
+network_output=$(/home/elemental/sardius/elScripts/network.sh "$2" "$3" "$4" &)
 firmware_output=$(/home/elemental/sardius/elScripts/firmware.sh &)
 
 # Wait for all background jobs to finish
