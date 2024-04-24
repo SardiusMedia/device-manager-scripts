@@ -32,8 +32,8 @@ construct_curl_command() {
     if [[ -n "$username" && -n "$userAuthKey" ]]; then
         # If username and userAuthKey are provided, set headers and use HTTPS
         url="https://${url#http://}"
-        local hashed_key=$(calculate_hashed_key)
         local expires=$(calculate_expires)
+        local hashed_key=$(calculate_hashed_key)
         headers="-H 'X-Auth-User: $username' -H 'X-Auth-Expires: $expires' -H 'X-Auth-Key: $hashed_key'"
         echo "Headers: $headers"
     fi
