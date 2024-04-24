@@ -16,8 +16,14 @@ calculate_hashed_key() {
     local url="http://localhost/api/devices.json"
     local path_without_api_version=$(echo "$url" | sed -E 's/\/api[^\/]+//i')
     local expires=$(calculate_expires)  # Calculate the expiration time
-    local hashed_key=$(echo -n "${userAuthKey}$(echo -n "${userAuthKey}${path_without_api_version}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)" | md5sum | cut -d ' ' -f 1)
-    echo "$hashed_key"
+    echo "Expires: $expires"
+    local concat_str="${userAuthKey}${path_without_api_version}${username}${userAuthKey}${expires}"
+    echo "Concatenated String: $concat_str"
+    local md5_result=$(echo -n "$concat_str" | md5sum)
+    echo "MD5 Result: $md5_result"
+    local hashed_key=$(echo -n "${userAuthKey}${md5_result}" | md5sum)
+    echo "Hashed Key: $hashed_key"
+    echo "$hashed_key" | cut -d ' ' -f 1
 }
 
 # Function to construct the CURL command with headers
