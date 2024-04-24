@@ -16,7 +16,7 @@ calculate_expires() {
 calculate_hashed_key() {
     local url="http://localhost/api/devices.json"
     local path_without_api_version=$(echo "$url" | sed -E 's/\/api[^\/]+//i')
-    local expires=$(calculate_expires)  # Calculate the expiration time
+    local expires="$1"  # Expiration time passed as argument
     local concat_str="${userAuthKey}$(echo -n "${userAuthKey}${path_without_api_version}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)"
     local hashed_key=$(echo -n "${userAuthKey}${concat_str}" | md5sum | cut -d ' ' -f 1)
     echo "Hashed key: $hashed_key"
@@ -30,8 +30,8 @@ construct_curl_command() {
     if [[ -n "$username" && -n "$userAuthKey" ]]; then
         # If username and userAuthKey are provided, set headers and use HTTPS
         url="https://${url#http://}"
-        local expires=$(calculate_expires)  # Calculate the expiration time
-        local hashed_key=$(calculate_hashed_key "$expires")
+        local expires=$(calculate_expires)  # Calculate the expiration time only once
+        local hashed_key=$(calculate_hashed_key "$expires")  # Pass expiration time as argument
         headers="-H 'X-Auth-User: $username' -H 'X-Auth-Expires: $expires' -H 'X-Auth-Key: $hashed_key'"
         echo "Headers: $headers"
     fi
