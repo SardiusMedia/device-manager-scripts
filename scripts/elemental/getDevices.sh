@@ -15,7 +15,7 @@ calculate_expires() {
 
 # Function to calculate the hashed key
 calculate_hashed_key() {
-    local urlPath="devices.json"
+    local urlPath="/devices.json"
     local hashed_key=$(echo -n "${userAuthKey}$(echo -n "${urlPath}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)" | md5sum | cut -d ' ' -f 1)
     echo "$hashed_key"
 }
