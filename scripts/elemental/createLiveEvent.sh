@@ -2,16 +2,20 @@
 
 # Setup Stream Event Body Variable
 streamEventBody="$1"
+# Username, user expiration, and user authentication key passed as arguments
+username="$2"
+userExpire="$3"
+userAuthKey="$4"
 
 # Check if username, userExpire, and userAuthKey are defined
-if [[ -n "$2" && -n "$3" && -n "$4" ]]; then
+if [[ -n "$username" && -n "$userExpire" && -n "$userAuthKey" ]]; then
     # Construct the curl command with HTTPS URL and additional headers
     curl_command="curl -X POST https://localhost/api/live_events \
         -H 'Content-Type: application/xml' \
         -H 'Accept: application/xml' \
-        -H 'X-Auth-User: $2' \
-        -H 'X-Auth-Expires: $3' \
-        -H 'X-Auth-Key: $4' \
+        -H 'X-Auth-User: $username' \
+        -H 'X-Auth-Expires: $userExpire' \
+        -H 'X-Auth-Key: $userAuthKey' \
         -d '${streamEventBody}'"
 else
     # Construct the curl command with HTTP URL

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Username, user expiration, and user authentication key passed as arguments
+username="$1"
+userExpire="$2"
+userAuthKey="$3"
+
 # Function to construct the CURL command with headers
 construct_curl_command() {
     local url="http://localhost/settings/network.json"

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+
+# Presigned URL provided as the first command-line argument
+presigned_url="$1"
+# Username, user expiration, and user authentication key passed as arguments
+username="$2"
+userExpire="$3"
+userAuthKey="$4"
+
 # Function to fetch data with or without headers based on arguments
 fetch_with_headers() {
     local url="$1"
@@ -11,12 +19,6 @@ fetch_with_headers() {
     fi
     curl -sX GET $headers "$url"
 }
-
-# Presigned URL provided as the first command-line argument
-presigned_url="$1"
-username="$2"
-userExpire="$3"
-userAuthKey="$4"
 
 # Run get input devices on Elemental REST API and capture the output
 output=$(fetch_with_headers "http://localhost/api/live_events.xml")

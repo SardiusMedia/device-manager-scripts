@@ -4,6 +4,7 @@
 streamEventId="$1"
 # file extension determines status endpoint type
 extension="$2"
+# Username, user expiration, and user authentication key passed as arguments
 username="$3"
 userExpire="$4"
 userAuthKey="$5"

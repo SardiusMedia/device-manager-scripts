@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Presigned URL provided as the first command-line argument
+username="$1"
+userExpire="$2"
+userAuthKey="$3"
+
 # Function to construct the CURL command with headers
 construct_curl_command() {
     local url="http://localhost/system_status.json"

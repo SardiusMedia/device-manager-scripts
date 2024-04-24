@@ -2,6 +2,7 @@
 
 # Presigned URL provided as the first command-line argument
 presigned_url="$1"
+# Username, user expiration, and user authentication key passed as arguments
 username="$2"
 userExpire="$3"
 userAuthKey="$4"

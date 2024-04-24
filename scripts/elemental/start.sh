@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Setup Stream Event Id Variable
+streamEventId="$1"
+# Username, user expiration, and user authentication key passed as arguments
+username="$2"
+userExpire="$3"
+userAuthKey="$4"
+
 # Function to construct the CURL command with headers
 construct_curl_command() {
     local url="http://localhost/api/live_events/${streamEventId}/start"
@@ -11,9 +18,6 @@ construct_curl_command() {
     fi
     echo "curl -X POST $headers -d '<start></start>' \"$url\""
 }
-
-# Setup Stream Event Id Variable
-streamEventId="$1"
 
 # Construct the CURL command
 curl_command=$(construct_curl_command)
