@@ -5,18 +5,18 @@ username="$1"
 userAuthKey="$2"
 
 url="http://localhost/api/devices.json"
-expires=0
 
 # Function to calculate the expiration time
 calculate_expires() {
     local current_time=$(date -u +%s)  # Get the current time in Unix time in UTC
-    expires=$((current_time + 30))  # Add 30 seconds to the current time
+    local expires=$((current_time + 30))  # Add 30 seconds to the current time
     echo "$expires"
 }
 
 # Function to calculate the hashed key
 calculate_hashed_key() {
-    local hashed_key=$(echo -n "${userAuthKey}$(echo -n "${url}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)" | md5sum | cut -d ' ' -f 1)
+    local urlPath="devices.json"
+    local hashed_key=$(echo -n "${userAuthKey}$(echo -n "${urlPath}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)" | md5sum | cut -d ' ' -f 1)
     echo "$hashed_key"
 }
 
@@ -35,8 +35,6 @@ construct_curl_command() {
 
 # Construct the CURL command
 curl_command=$(construct_curl_command)
-echo "CURL command: $curl_command"
-echo "expires: $expires"
 
 # Execute the final command
 eval "$curl_command"
