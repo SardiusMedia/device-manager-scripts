@@ -4,13 +4,12 @@
 presigned_url="$1"
 # Username, user expiration, and user authentication key passed as arguments
 username="$2"
-userExpire="$3"
-userAuthKey="$4"
+userAuthKey="$3"
 
 # Run systemInfo.sh, getDevices.sh, network.sh, and firmware.sh scripts concurrently
-system_info_output=$(/home/elemental/sardius/elScripts/systemInfo.sh "$username" "$userExpire" "$userAuthKey" &)
-devices_output=$(/home/elemental/sardius/elScripts/getDevices.sh "$username" "$userExpire" "$userAuthKey" &)
-network_output=$(/home/elemental/sardius/elScripts/network.sh "$username" "$userExpire" "$userAuthKey" &)
+system_info_output=$(/home/elemental/sardius/elScripts/systemInfo.sh "$username" "$userAuthKey" &)
+devices_output=$(/home/elemental/sardius/elScripts/getDevices.sh "$username" "$userAuthKey" &)
+network_output=$(/home/elemental/sardius/elScripts/network.sh "$username" "$userAuthKey" &)
 firmware_output=$(/home/elemental/sardius/elScripts/firmware.sh &)
 
 # Wait for all background jobs to finish
