@@ -15,10 +15,8 @@ calculate_expires() {
 
 # Function to calculate the hashed key
 calculate_hashed_key() {
-    local path_without_api_version=$(echo "$url" | sed -E 's/\/api[^\/]+//i')
     local expires="$1"  # Expiration time passed as argument
-    local hash1="$(echo -n "${path_without_api_version}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)"
-    local hashed_key=$(echo -n "${userAuthKey}${hash1}" | md5sum | cut -d ' ' -f 1)
+    local hashed_key=$(echo -n "${userAuthKey}$(echo -n "${url}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)" | md5sum | cut -d ' ' -f 1)
     echo "$hashed_key"
 }
 
@@ -38,6 +36,7 @@ construct_curl_command() {
 # Construct the CURL command
 curl_command=$(construct_curl_command)
 echo "CURL command: $curl_command"
+echo "expires: $expires"
 
 # Execute the final command
 eval "$curl_command"
