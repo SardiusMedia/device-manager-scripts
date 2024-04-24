@@ -12,7 +12,7 @@ construct_curl_command() {
         url="https://${url#http://}"
         headers="-H 'X-Auth-User: $username' -H 'X-Auth-Expires: $userExpire' -H 'X-Auth-Key: $userAuthKey'"
     fi
-    echo "curl -X GET $headers \"$url\""
+    echo "curl -k -X GET $headers \"$url\""
 }
 
 # Construct the CURL command
