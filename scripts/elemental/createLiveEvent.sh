@@ -10,7 +10,7 @@ userAuthKey="$4"
 # Check if username, userExpire, and userAuthKey are defined
 if [[ -n "$username" && -n "$userExpire" && -n "$userAuthKey" ]]; then
     # Construct the curl command with HTTPS URL and additional headers
-    curl_command="curl -X POST https://localhost/api/live_events \
+    curl_command="curl -k -X POST https://localhost/api/live_events \
         -H 'Content-Type: application/xml' \
         -H 'Accept: application/xml' \
         -H 'X-Auth-User: $username' \
