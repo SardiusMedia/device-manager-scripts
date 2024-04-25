@@ -82,10 +82,10 @@ if [[ $stop_output == *"Event successfully stopped"* ]]; then
     
     # Loop to check the event status until it's no longer running or max attempts reached
     attempts=0
-    max_attempts=5
+    max_attempts=20
     while [ $attempts -lt $max_attempts ]; do
         if check_event_status; then
-            sleep 1  # Sleep for 1 second
+            sleep .5  # Sleep for 1 second
             ((attempts++))
         else
             break
