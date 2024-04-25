@@ -41,6 +41,7 @@ construct_curl_command() {
     local url="$1"
     local headers="$2"
     local method="$3"
+    local data="$4"
     if [[ -n "$username" && -n "$userAuthKey" ]]; then
         # If username and userAuthKey are provided, use HTTPS, calculate expires, and include headers
         url="https://${url#http://}"
@@ -48,7 +49,7 @@ construct_curl_command() {
         local hashed_key=$(calculate_hashed_key "$url" "$expires")
         headers="$headers -H 'X-Auth-User: $username' -H 'X-Auth-Expires: $expires' -H 'X-Auth-Key: $hashed_key'"
     fi
-    echo "curl -k -s -X $method  \"$url\" $headers"
+    echo "curl -k -s -X $method  \"$url\" $headers $data"
 }
 
 # Function to check if the event is no longer running
@@ -72,10 +73,7 @@ check_event_status() {
 }
 
 # Generate stop curl command
-stop_command=$(construct_curl_command \
-    "https://localhost/api/live_events/${streamEventId}/stop.json" \
-    "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" \
-    "POST")
+stop_command=$(construct_curl_command "https://localhost/api/live_events/${streamEventId}/stop.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "POST" "-d '<stop></stop>")
 
 # Execute stop curl command
 stop_output=$(eval "$stop_command")
