@@ -115,10 +115,10 @@ else
         max_attempts=20
         while [ $attempts -lt $max_attempts ]; do
             if check_event_status; then
+                break
+            else
                 sleep .5  # Sleep for half a second
                 ((attempts++))
-            else
-                break
             fi
         done
         
