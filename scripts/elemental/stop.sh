@@ -86,6 +86,8 @@ delete_event() {
         exit 1
     fi
     
+    echo "$delete_output" >&2
+    
     # Check if the delete was successful
     if [[ $delete_output != *"Invalid command"* ]]; then
         echo "Stop and Delete Executed" >&2
