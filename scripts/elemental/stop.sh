@@ -4,8 +4,7 @@
 streamEventId="$1"
 # Username, user expiration, and user authentication key passed as arguments
 username="$2"
-userExpire="$3"
-userAuthKey="$4"
+userAuthKey="$3"
 
 # Function to calculate the expiration time
 calculate_expires() {
