@@ -77,7 +77,7 @@ check_event_status() {
 
 delete_event() {
     # Generate delete curl command
-    delete_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "DELETE")
+    delete_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}.json" "" "DELETE")
 
     # Execute stop curl command
     delete_output=$(eval "$delete_command")
