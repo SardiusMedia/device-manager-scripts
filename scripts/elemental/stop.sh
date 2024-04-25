@@ -49,7 +49,7 @@ construct_curl_command() {
         local hashed_key=$(calculate_hashed_key "$url" "$expires")
         headers="$headers -H 'X-Auth-User: $username' -H 'X-Auth-Expires: $expires' -H 'X-Auth-Key: $hashed_key'"
     fi
-    echo "curl -k -s -X $method  \"$url\" $headers $data"
+    echo "curl -k -s -X $method \"$url\" $headers $data"
 }
 
 # Function to check if the event is no longer running
