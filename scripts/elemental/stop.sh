@@ -55,10 +55,9 @@ construct_curl_command() {
 # Function to check if the event is no longer running
 check_event_status() {
     # Define the URL for status check
-    local status_url="http://localhost/api/live_events/${streamEventId}/status.json"
     local headers=""
 
-    status_command=$(construct_curl_command "$status_url" "" "GET" )
+    status_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}/status.json" "$headers" "GET" )
 
     # Execute stop curl command
     status_output=$(eval "$status_command")
@@ -94,10 +93,7 @@ if [[ $stop_output == *"Event successfully stopped"* ]]; then
     done
     
     # Generate delete curl command
-    delete_command=$(construct_curl_command \
-        "https://localhost/api/live_events/${streamEventId}.json" \
-        "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" \
-        "DELETE")
+    delete_command=$(construct_curl_command "https://localhost/api/live_events/${streamEventId}.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "DELETE")
 
     # Execute stop curl command
     delete_output=$(eval "$delete_command")
