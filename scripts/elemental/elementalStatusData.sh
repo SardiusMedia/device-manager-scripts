@@ -111,7 +111,7 @@ for ((i=0; i<${#event_statuses[@]}; i++)); do
 done
 
 # Escape double quotes, backslashes, and newline characters in the XML content
-escaped_all_events_xml="${all_events_xml//\\/\\\\}"
+escaped_all_events_xml="${all_events_xml_output//\\/\\\\}"
 escaped_all_events_xml="${escaped_all_events_xml//\"/\\\"}"
 escaped_all_events_xml="${escaped_all_events_xml//$'\n'/\\n}"
 
