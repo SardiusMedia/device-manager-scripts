@@ -93,6 +93,9 @@ delete_event() {
 }
 
 if check_event_status; then
+    echo "Trying to delete" >&2
+    delete_event
+else 
     echo "Trying to stop and delete" >&2
     # Generate stop curl command
     stop_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}/stop.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "POST" "-d '<stop></stop>'")
@@ -121,7 +124,4 @@ if check_event_status; then
         
         delete_event
     fi
-else 
-    echo "Trying to delete" >&2
-    delete_event
 fi
