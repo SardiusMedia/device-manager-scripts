@@ -62,7 +62,7 @@ check_event_status() {
     # Execute stop curl command
     status_output=$(eval "$status_command")
     if [ $? -ne 0 ]; then
-        echo "Error occurred during status command execution: $status_output" >&2
+        echo "Error occurred during delete command execution: $status_output" >&2
         exit 1
     fi
 
@@ -76,7 +76,7 @@ check_event_status() {
 }
 
 # Generate stop curl command
-stop_command=$(construct_curl_command "https://localhost/api/live_events/${streamEventId}/stop.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "POST" "-d '<stop></stop>'")
+stop_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}/stop.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "POST" "-d '<stop></stop>'")
 
 # Execute stop curl command
 stop_output=$(eval "$stop_command")
@@ -101,7 +101,7 @@ if [[ $stop_output == *"Event successfully stopped"* ]]; then
     done
     
     # Generate delete curl command
-    delete_command=$(construct_curl_command "https://localhost/api/live_events/${streamEventId}.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "DELETE")
+    delete_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "DELETE")
 
     # Execute stop curl command
     delete_output=$(eval "$delete_command")
