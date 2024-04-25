@@ -2,13 +2,67 @@
 
 # Setup Stream Event Id Variable
 streamEventId="$1"
+# Username, user expiration, and user authentication key passed as arguments
+username="$2"
+userExpire="$3"
+userAuthKey="$4"
 
-# Define the URL for status check
-status_url="http://localhost/api/live_events/${streamEventId}/status.json"
+# Function to calculate the expiration time
+calculate_expires() {
+    local current_time=$(date -u +%s)  # Get the current time in Unix time in UTC
+    local expires=$((current_time + 30))  # Add 30 seconds to the current time
+    echo "$expires"
+}
+
+# Function to extract the path from a URL
+extract_path() {
+    local url="$1"
+    local path
+
+    # Remove the protocol and domain part of the URL
+    path=$(echo "$url" | sed -E 's/^[^/]*\/\/[^/]*//')
+
+    # Remove any query parameters and fragments from the path
+    path=$(echo "$path" | sed 's/\?.*$//' | sed 's/#.*$//')
+
+    echo "$path"
+}
+
+# Function to calculate the hashed key
+calculate_hashed_key() {
+    local url="$1"
+    local expires="$2"  # Pass expiration time as argument
+    local urlPath=$(extract_path "$url")
+    local hashed_key=$(echo -n "${userAuthKey}$(echo -n "${urlPath}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)" | md5sum | cut -d ' ' -f 1)
+    echo "$hashed_key"
+}
+
+# Function to construct the CURL command with headers
+construct_curl_command() {
+    local url="$1"
+    local headers="$2"
+    local method="$3"
+    if [[ -n "$username" && -n "$userAuthKey" ]]; then
+        # If username and userAuthKey are provided, use HTTPS, calculate expires, and include headers
+        url="https://${url#http://}"
+        local expires=$(calculate_expires)
+        local hashed_key=$(calculate_hashed_key "$url" "$expires")
+        headers="$headers -H 'X-Auth-User: $username' -H 'X-Auth-Expires: $expires' -H 'X-Auth-Key: $hashed_key'"
+    fi
+    echo "curl -k -s -X $method  \"$url\" $headers"
+}
 
 # Function to check if the event is no longer running
 check_event_status() {
-    status_output=$(curl -s $status_url)
+    # Define the URL for status check
+    local status_url="http://localhost/api/live_events/${streamEventId}/status.json"
+    local headers=""
+
+    status_command=$(construct_curl_command $status_url "" "GET" )
+
+    # Execute stop curl command
+    status_output=$(eval "$status_command")
+
     event_status=$(echo $status_output | grep -o '"status": *"[^"]*"' | cut -d '"' -f 4)
     
     if [ "$event_status" != "running" ]; then
@@ -18,8 +72,14 @@ check_event_status() {
     fi
 }
 
-# Perform variable substitution for stop command
-stop_output=$(curl -s -X POST http://localhost/api/live_events/${streamEventId}/stop.json -H 'Content-Type: application/xml' -H 'Accept: application/xml' -d '<stop></stop>')
+# Generate stop curl command
+stop_command=$(construct_curl_command \
+    "https://localhost/api/live_events/${streamEventId}/stop.json" \
+    "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" \
+    "POST")
+
+# Execute stop curl command
+stop_output=$(eval "$stop_command")
 
 # Check if the stop was successful
 if [[ $stop_output == *"Event successfully stopped"* ]]; then
@@ -36,8 +96,14 @@ if [[ $stop_output == *"Event successfully stopped"* ]]; then
         fi
     done
     
-    # Perform variable substitution for delete command
-    delete_output=$(curl -s -X DELETE http://localhost/api/live_events/${streamEventId}.json)
+    # Generate delete curl command
+    delete_command=$(construct_curl_command \
+        "https://localhost/api/live_events/${streamEventId}.json" \
+        "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" \
+        "DELETE")
+
+    # Execute stop curl command
+    delete_output=$(eval "$delete_command")
     
     # Check if the delete was successful
     if [[ $delete_output != *"Invalid command"* ]]; then

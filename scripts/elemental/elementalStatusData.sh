@@ -2,6 +2,47 @@
 
 # Presigned URL provided as the first command-line argument
 presigned_url="$1"
+# Username, user expiration, and user authentication key passed as arguments
+username="$2"
+
+userAuthKey="$4"
+
+statusUrl="http://localhost/system_status.json"
+devicesUrl="http://localhost/api/devices.json"
+liveEventsUrl="http://localhost/api/live_events.xml"
+
+# Function to calculate the expiration time
+calculate_expires() {
+    local current_time=$(date -u +%s)  # Get the current time in Unix time in UTC
+    local expires=$((current_time + 30))  # Add 30 seconds to the current time
+    echo "$expires"
+}
+
+# Function to extract the path from a URL
+extract_path() {
+    local url="$1"
+    local path
+
+    # Remove the protocol and domain part of the URL
+    path=$(echo "$url" | sed -E 's/^[^/]*\/\/[^/]*//')
+
+    # Remove any query parameters and fragments from the path
+    path=$(echo "$path" | sed 's/\?.*$//' | sed 's/#.*$//')
+
+    # Remove the "/api" prefix from the path, if present
+    path=$(echo "$path" | sed 's|^/api||')
+
+    echo "$path"
+}
+
+# Function to calculate the hashed key
+calculate_hashed_key() {
+    local url="$1"
+    local expires="$2"
+    local urlPath=$(extract_path "$url")
+    local hashed_key=$(echo -n "${userAuthKey}$(echo -n "${urlPath}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)" | md5sum | cut -d ' ' -f 1)
+    echo "$hashed_key"
+}
 
 # Function to extract event IDs from XML
 extract_event_ids() {
@@ -10,24 +51,32 @@ extract_event_ids() {
     echo "$ids"
 }
 
-# Function to fetch event status for given event ID
-fetch_event_status() {
-    local event_id="$1"
-    local status=$(curl -sX GET "http://localhost/api/live_events/${event_id}/status.json")
-    echo "$status"
+# Function to fetch data with or without headers based on arguments
+fetch_with_headers() {
+    local url="$1"
+    local headers=""
+    if [[ -n "$username" && -n "$userAuthKey" ]]; then
+        # If username and userAuthKey are provided, set headers and use HTTPS
+        url="https://${url#http://}"
+        local expires=$(calculate_expires)  # Calculate the expiration time only once
+        local hashed_key=$(calculate_hashed_key "$url" "$expires")  # Pass expiration time as argument
+        # If username, userExpire, and userAuthKey are provided, set headers
+        headers="-H 'X-Auth-User: $username' -H 'X-Auth-Expires: $expires' -H 'X-Auth-Key: $userAuthKey'"
+    fi
+    curl -k -s -X GET $headers "$url"
 }
 
 # Run systemInfo.sh script and capture its output
 echo "Fetching system status..."
-system_status_output=$(curl -sX GET http://localhost/system_status.json)
+system_status_output=$(fetch_with_headers "$statusUrl")
 
 # Run devices.sh script and capture its output
 echo "Fetching devices..."
-devices_output=$(curl -sX GET http://localhost/api/devices.json)
+devices_output=$(fetch_with_headers "$devicesUrl")
 
 # Run get input devices on Elemental REST API and capture the output
 echo "Fetching all events XML..."
-all_events_xml=$(curl -sX GET http://localhost/api/live_events.xml)
+all_events_xml=$(fetch_with_headers "$liveEventsUrl")
 
 # Extract event IDs from XML
 echo "Extracting event IDs..."
@@ -40,7 +89,7 @@ event_statuses=()
 echo "Fetching event statuses..."
 for event_id in $event_ids; do
     echo "Fetching status for event ID: $event_id"
-    event_status=$(fetch_event_status "$event_id")
+    event_status=$(fetch_with_headers "http://localhost/api/live_events/${event_id}/status.json")
     # Append the fetched status as a JSON object to the event_statuses array
     event_statuses+=("$event_status")
 done
