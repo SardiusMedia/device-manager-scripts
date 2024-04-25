@@ -73,7 +73,7 @@ check_event_status() {
 }
 
 # Generate stop curl command
-stop_command=$(construct_curl_command "https://localhost/api/live_events/${streamEventId}/stop.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "POST" "-d '<stop></stop>")
+stop_command=$(construct_curl_command "https://localhost/api/live_events/${streamEventId}/stop.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "POST" "-d '<stop></stop>'")
 
 # Execute stop curl command
 stop_output=$(eval "$stop_command")
