@@ -61,6 +61,10 @@ check_event_status() {
 
     # Execute stop curl command
     status_output=$(eval "$status_command")
+    if [ $? -ne 0 ]; then
+        echo "Error occurred during status command execution: $status_output" >&2
+        exit 1
+    fi
 
     event_status=$(echo $status_output | grep -o '"status": *"[^"]*"' | cut -d '"' -f 4)
     
@@ -76,6 +80,10 @@ stop_command=$(construct_curl_command "https://localhost/api/live_events/${strea
 
 # Execute stop curl command
 stop_output=$(eval "$stop_command")
+if [ $? -ne 0 ]; then
+    echo "Error occurred during stop command execution: $stop_output" >&2
+    exit 1
+fi
 
 # Check if the stop was successful
 if [[ $stop_output == *"Event successfully stopped"* ]]; then
@@ -85,7 +93,7 @@ if [[ $stop_output == *"Event successfully stopped"* ]]; then
     max_attempts=20
     while [ $attempts -lt $max_attempts ]; do
         if check_event_status; then
-            sleep .5  # Sleep for 1 second
+            sleep .5  # Sleep for half a second
             ((attempts++))
         else
             break
@@ -97,6 +105,10 @@ if [[ $stop_output == *"Event successfully stopped"* ]]; then
 
     # Execute stop curl command
     delete_output=$(eval "$delete_command")
+    if [ $? -ne 0 ]; then
+        echo "Error occurred during delete command execution: $delete_output" >&2
+        exit 1
+    fi
     
     # Check if the delete was successful
     if [[ $delete_output != *"Invalid command"* ]]; then
