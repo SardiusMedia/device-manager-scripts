@@ -4,12 +4,7 @@
 presigned_url="$1"
 # Username, user expiration, and user authentication key passed as arguments
 username="$2"
-
-userAuthKey="$4"
-
-statusUrl="http://localhost/system_status.json"
-devicesUrl="http://localhost/api/devices.json"
-liveEventsUrl="http://localhost/api/live_events.xml"
+userAuthKey="$3"
 
 # Function to calculate the expiration time
 calculate_expires() {
@@ -68,15 +63,15 @@ fetch_with_headers() {
 
 # Run systemInfo.sh script and capture its output
 echo "Fetching system status..."
-system_status_output=$(fetch_with_headers "$statusUrl")
+system_status_output=$(fetch_with_headers "http://localhost/system_status.json")
 
 # Run devices.sh script and capture its output
 echo "Fetching devices..."
-devices_output=$(fetch_with_headers "$devicesUrl")
+devices_output=$(fetch_with_headers "http://localhost/api/devices.json")
 
 # Run get input devices on Elemental REST API and capture the output
 echo "Fetching all events XML..."
-all_events_xml=$(fetch_with_headers "$liveEventsUrl")
+all_events_xml=$(fetch_with_headers "http://localhost/api/live_events.xml")
 
 # Extract event IDs from XML
 echo "Extracting event IDs..."
