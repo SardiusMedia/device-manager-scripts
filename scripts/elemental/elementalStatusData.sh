@@ -33,10 +33,24 @@ extract_path() {
 # Function to calculate the hashed key
 calculate_hashed_key() {
     local url="$1"
-    local expires="$2"
+    local expires="$2"  # Pass expiration time as argument
     local urlPath=$(extract_path "$url")
     local hashed_key=$(echo -n "${userAuthKey}$(echo -n "${urlPath}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)" | md5sum | cut -d ' ' -f 1)
     echo "$hashed_key"
+}
+
+# Function to construct the CURL command with headers
+construct_curl_command() {
+    local url="$1"
+    local headers="-H 'Accept: application/xml'"
+    if [[ -n "$username" && -n "$userAuthKey" ]]; then
+        # If username and userAuthKey are provided, set headers and use HTTPS
+        url="https://${url#http://}"
+        local expires=$(calculate_expires)  # Calculate the expiration time only once
+        local hashed_key=$(calculate_hashed_key "$url" "$expires")  # Pass expiration time as argument
+        headers="$headers -H 'X-Auth-User: $username' -H 'X-Auth-Expires: $expires' -H 'X-Auth-Key: $hashed_key'"
+    fi
+    echo "curl -k -s -X GET $headers \"$url\""
 }
 
 # Function to extract event IDs from XML
@@ -46,36 +60,30 @@ extract_event_ids() {
     echo "$ids"
 }
 
-# Function to fetch data with or without headers based on arguments
-fetch_with_headers() {
-    local url="$1"
-    local headers=""
-    if [[ -n "$username" && -n "$userAuthKey" ]]; then
-        # If username and userAuthKey are provided, set headers and use HTTPS
-        url="https://${url#http://}"
-        local expires=$(calculate_expires)  # Calculate the expiration time only once
-        local hashed_key=$(calculate_hashed_key "$url" "$expires")  # Pass expiration time as argument
-        # If username, userExpire, and userAuthKey are provided, set headers
-        headers="-H 'X-Auth-User: $username' -H 'X-Auth-Expires: $expires' -H 'X-Auth-Key: $userAuthKey'"
-    fi
-    curl -k -s -X GET $headers "$url"
-}
-
-# Run systemInfo.sh script and capture its output
+# Create system status command
 echo "Fetching system status..."
-system_status_output=$(fetch_with_headers "http://localhost/system_status.json")
+system_status_command=$(construct_curl_command "http://localhost/api/system_status.json")
 
-# Run devices.sh script and capture its output
+# Execute system status curl command
+system_status_output=$(eval "$system_status_command")
+
+# Create get devices command
 echo "Fetching devices..."
-devices_output=$(fetch_with_headers "http://localhost/api/devices.json")
+devices_command=$(construct_curl_command "http://localhost/api/devices.json")
 
-# Run get input devices on Elemental REST API and capture the output
+# Execute devices curl command
+devices_output=$(eval "$devices_command")
+
+# Create get all live events command
 echo "Fetching all events XML..."
-all_events_xml=$(fetch_with_headers "http://localhost/api/live_events.xml")
+all_events_xml_command=$(construct_curl_command "http://localhost/api/live_events.xml")
+
+# Execute all live events curl command
+all_events_xml_output=$(eval "$all_events_xml_command")
 
 # Extract event IDs from XML
 echo "Extracting event IDs..."
-event_ids=$(extract_event_ids "$all_events_xml")
+event_ids=$(extract_event_ids "$all_events_xml_output")
 
 # Initialize an empty array to store event statuses
 event_statuses=()
@@ -84,7 +92,8 @@ event_statuses=()
 echo "Fetching event statuses..."
 for event_id in $event_ids; do
     echo "Fetching status for event ID: $event_id"
-    event_status=$(fetch_with_headers "http://localhost/api/live_events/${event_id}/status.json")
+    event_status_command=$(construct_curl_command "http://localhost/api/live_events/${event_id}/status.json")
+    event_status=$(eval "$event_status_command")
     # Append the fetched status as a JSON object to the event_statuses array
     event_statuses+=("$event_status")
 done
