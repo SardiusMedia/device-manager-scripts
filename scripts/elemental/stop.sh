@@ -55,22 +55,22 @@ construct_curl_command() {
 # Function to check if the event is no longer running
 check_event_status() {
     # Define the URL for status check
-    local headers=""
-
-    status_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}/status.json" "$headers" "GET" )
+    status_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}/status.json" "" "GET" )
 
     # Execute stop curl command
     status_output=$(eval "$status_command")
     if [ $? -ne 0 ]; then
-        echo "Error occurred during delete command execution: $status_output" >&2
+        echo "Error occurred during status command execution: $status_output" >&2
         exit 1
     fi
 
     event_status=$(echo $status_output | grep -o '"status": *"[^"]*"' | cut -d '"' -f 4)
     
     if [ "$event_status" != "running" ]; then
+        echo "Event is not running" >&2
         return 0
     else
+        echo "Event is still running" >&2
         return 1
     fi
 }
@@ -88,11 +88,12 @@ delete_event() {
     
     # Check if the delete was successful
     if [[ $delete_output != *"Invalid command"* ]]; then
-        echo "Stop and Delete Executed"
+        echo "Stop and Delete Executed" >&2
     fi
 }
 
 if check_event_status; then
+    echo "Trying to stop and delete" >&2
     # Generate stop curl command
     stop_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}/stop.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "POST" "-d '<stop></stop>'")
 
@@ -121,5 +122,6 @@ if check_event_status; then
         delete_event
     fi
 else 
+    echo "Trying to delete" >&2
     delete_event
 fi
