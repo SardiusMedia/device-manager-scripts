@@ -75,31 +75,48 @@ check_event_status() {
     fi
 }
 
-# Generate stop curl command
-stop_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}/stop.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "POST" "-d '<stop></stop>'")
+if check_event_status; then
+    # Generate stop curl command
+    stop_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}/stop.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "POST" "-d '<stop></stop>'")
 
-# Execute stop curl command
-stop_output=$(eval "$stop_command")
-if [ $? -ne 0 ]; then
-    echo "Error occurred during stop command execution: $stop_output" >&2
-    exit 1
-fi
+    # Execute stop curl command
+    stop_output=$(eval "$stop_command")
+    if [ $? -ne 0 ]; then
+        echo "Error occurred during stop command execution: $stop_output" >&2
+        exit 1
+    fi
 
-# Check if the stop was successful
-if [[ $stop_output == *"Event successfully stopped"* ]]; then
-    
-    # Loop to check the event status until it's no longer running or max attempts reached
-    attempts=0
-    max_attempts=20
-    while [ $attempts -lt $max_attempts ]; do
-        if check_event_status; then
-            sleep .5  # Sleep for half a second
-            ((attempts++))
-        else
-            break
+    # Check if the stop was successful
+    if [[ $stop_output == *"Event successfully stopped"* ]]; then
+        
+        # Loop to check the event status until it's no longer running or max attempts reached
+        attempts=0
+        max_attempts=20
+        while [ $attempts -lt $max_attempts ]; do
+            if check_event_status; then
+                sleep .5  # Sleep for half a second
+                ((attempts++))
+            else
+                break
+            fi
+        done
+        
+        # Generate delete curl command
+        delete_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "DELETE")
+
+        # Execute stop curl command
+        delete_output=$(eval "$delete_command")
+        if [ $? -ne 0 ]; then
+            echo "Error occurred during delete command execution: $delete_output" >&2
+            exit 1
         fi
-    done
-    
+        
+        # Check if the delete was successful
+        if [[ $delete_output != *"Invalid command"* ]]; then
+            echo "Stop and Delete Executed"
+        fi
+    fi
+else 
     # Generate delete curl command
     delete_command=$(construct_curl_command "http://localhost/api/live_events/${streamEventId}.json" "-H 'Content-Type: application/xml' -H 'Accept: application/xml'" "DELETE")
 
