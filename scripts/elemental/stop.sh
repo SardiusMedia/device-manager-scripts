@@ -57,7 +57,7 @@ check_event_status() {
     local status_url="http://localhost/api/live_events/${streamEventId}/status.json"
     local headers=""
 
-    status_command=$(construct_curl_command $status_url "" "GET" )
+    status_command=$(construct_curl_command "$status_url" "" "GET" )
 
     # Execute stop curl command
     status_output=$(eval "$status_command")
