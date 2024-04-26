@@ -13,8 +13,8 @@ calculate_expires() {
     echo "$expires"
 }
 
-# Function to extract the URL path from a URL
-extract_url_path() {
+# Function to extract the path from a URL
+extract_path() {
     local url="$1"
     local path
 
@@ -24,8 +24,8 @@ extract_url_path() {
     # Remove any query parameters and fragments from the path
     path=$(echo "$path" | sed 's/\?.*$//' | sed 's/#.*$//')
 
-    # Remove the base URL part
-    path=$(echo "$path" | sed "s|^${base_url}||")
+    # Remove the "/api" prefix from the path, if present
+    path=$(echo "$path" | sed 's|^/api||')
 
     echo "$path"
 }
@@ -33,25 +33,24 @@ extract_url_path() {
 # Function to calculate the hashed key
 calculate_hashed_key() {
     local url="$1"
-    local expires="$2"  # Expiration time passed as argument
-    local urlPath=$(extract_url_path "$url")
+    local expires="$2"  # Pass expiration time as argument
+    local urlPath=$(extract_path "$url")
     local hashed_key=$(echo -n "${userAuthKey}$(echo -n "${urlPath}${username}${userAuthKey}${expires}" | md5sum | cut -d ' ' -f 1)" | md5sum | cut -d ' ' -f 1)
     echo "$hashed_key"
 }
 
 # Function to construct the CURL command with headers
 construct_curl_command() {
+    local url="http://localhost/api/live_events"
     local headers="-H 'Content-Type: application/xml' -H 'Accept: application/xml'"
     if [[ -n "$username" && -n "$userAuthKey" ]]; then
-        local base_url="http://localhost"  # Base URL for extraction
-        local url="${base_url}/api/live_events"  # URL for the request
-        # If username and userAuthKey are provided, set headers and use HTTPS
+        # If username and userAuthKey are provided, use HTTPS, calculate expires, and include headers
         url="https://${url#http://}"
-        local expires=$(calculate_expires)  # Calculate the expiration time only once
-        local hashed_key=$(calculate_hashed_key "$url" "$expires")  # Pass expiration time as argument
-        headers="-H 'Content-Type: application/xml' -H 'Accept: application/xml' -H 'X-Auth-User: $username' -H 'X-Auth-Expires: $expires' -H 'X-Auth-Key: $hashed_key'"
+        local expires=$(calculate_expires)
+        local hashed_key=$(calculate_hashed_key "$url" "$expires")
+        headers="$headers -H 'X-Auth-User: $username' -H 'X-Auth-Expires: $expires' -H 'X-Auth-Key: $hashed_key'"
     fi
-    echo "curl -k -s -X POST $headers \"$url\" -d '${streamEventBody}'"
+    echo "curl -k -s -X POST \"$url\" $headers -d '${streamEventBody}'"
 }
 
 # Construct the CURL command
